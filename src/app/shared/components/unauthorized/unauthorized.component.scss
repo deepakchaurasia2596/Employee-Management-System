@@ -1,0 +1,48 @@
+.unauthorized-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.unauthorized-card {
+  text-align: center;
+  background-color: var(--bg-color);
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    font-size: 6rem;
+    color: var(--error-color);
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--text-color);
+    margin: 1rem 0;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .btn-back {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+  }
+}
+

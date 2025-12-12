@@ -1,0 +1,150 @@
+<div class="form-container">
+  <div class="form-card">
+    <h1>{{ isEditMode ? 'Edit Employee' : 'Add New Employee' }}</h1>
+
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name *</label>
+          <input
+            id="firstName"
+            type="text"
+            formControlName="firstName"
+            [class.error]="hasError('firstName')"
+          />
+          <span class="error-message" *ngIf="getError('firstName', 'First name')">
+            {{ getError('firstName', 'First name') }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            [class.error]="hasError('lastName')"
+          />
+          <span class="error-message" *ngIf="getError('lastName', 'Last name')">
+            {{ getError('lastName', 'Last name') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            [class.error]="hasError('email')"
+          />
+          <span class="error-message" *ngIf="getError('email', 'Email')">
+            {{ getError('email', 'Email') }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone *</label>
+          <input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            [class.error]="hasError('phone')"
+          />
+          <span class="error-message" *ngIf="getError('phone', 'Phone')">
+            {{ getError('phone', 'Phone') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="department">Department *</label>
+          <select
+            id="department"
+            formControlName="department"
+            [class.error]="hasError('department')"
+          >
+            <option value="">Select Department</option>
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
+          <span class="error-message" *ngIf="getError('department', 'Department')">
+            {{ getError('department', 'Department') }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="position">Position *</label>
+          <input
+            id="position"
+            type="text"
+            formControlName="position"
+            [class.error]="hasError('position')"
+          />
+          <span class="error-message" *ngIf="getError('position', 'Position')">
+            {{ getError('position', 'Position') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="status">Status *</label>
+          <select
+            id="status"
+            formControlName="status"
+            [class.error]="hasError('status')"
+          >
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+          <span class="error-message" *ngIf="getError('status', 'Status')">
+            {{ getError('status', 'Status') }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="hireDate">Hire Date *</label>
+          <input
+            id="hireDate"
+            type="date"
+            formControlName="hireDate"
+            [class.error]="hasError('hireDate')"
+          />
+          <span class="error-message" *ngIf="getError('hireDate', 'Hire date')">
+            {{ getError('hireDate', 'Hire date') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="salary">Salary *</label>
+        <input
+          id="salary"
+          type="number"
+          formControlName="salary"
+          [class.error]="hasError('salary')"
+        />
+        <span class="error-message" *ngIf="getError('salary', 'Salary')">
+          {{ getError('salary', 'Salary') }}
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label>Employee Photo</label>
+        <app-image-upload
+          [previewUrl]="previewUrl"
+          (imageSelected)="onImageSelected($event)"
+        ></app-image-upload>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="employeeForm.invalid">
+          {{ isEditMode ? 'Update Employee' : 'Add Employee' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

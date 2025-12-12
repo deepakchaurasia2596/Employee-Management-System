@@ -1,0 +1,27 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--hover-bg-color);
+    transform: translateY(-2px);
+  }
+
+  .icon {
+    font-size: 1.2rem;
+  }
+
+  .text {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+

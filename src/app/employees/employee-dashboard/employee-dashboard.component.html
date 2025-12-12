@@ -1,0 +1,74 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>Employee Dashboard</h1>
+
+    <!-- add-button -->
+    <button *ngIf="canAdd" class="btn-primary" (click)="onAddEmployee()" aria-label="Add employee">
+      Add Employee
+    </button>
+  </header>
+
+  <section class="filters-section" aria-label="Filters">
+    <!-- search -->
+    <div class="filter-group">
+      <label class="visually-hidden" for="employee-search">Search employees</label>
+      <input id="employee-search" type="text" class="search-input" placeholder="Search employees..."
+        [value]="searchQuery" (input)="onSearchChange($event)" aria-label="Search employees" />
+    </div>
+
+    <!-- department -->
+    <div class="filter-group">
+      <label class="visually-hidden" for="department-filter">Department</label>
+      <select id="department-filter" class="filter-select" [value]="selectedDepartment || ''"
+        (change)="onDepartmentChange($event)">
+        <option value="">All Departments</option>
+        <option *ngFor="let dept of departments; trackBy: trackByPrimitive" [value]="dept">
+          {{ dept }}
+        </option>
+      </select>
+    </div>
+
+    <!-- status -->
+    <div class="filter-group">
+      <label class="visually-hidden" for="status-filter">Status</label>
+      <select id="status-filter" class="filter-select" [value]="selectedStatus || ''"
+        (change)="onStatusChange($event)">
+        <option value="">All Statuses</option>
+        <option *ngFor="let st of statuses; trackBy: trackByPrimitive" [value]="st">
+          {{ st }}
+        </option>
+      </select>
+    </div>
+
+    <!-- clear-filters -->
+    <button class="btn-secondary" (click)="clearFilters()">Clear Filters</button>
+  </section>
+
+  <section class="grid-container" aria-label="Employees grid">
+    <ejs-grid #grid [dataSource]="gridData" [allowPaging]="true" [pageSettings]="pageSettings" [allowSorting]="true"
+      [allowFiltering]="true" [filterSettings]="filterSettings">
+      <e-columns>
+        <e-column field="id" headerText="ID" width="80"></e-column>
+        <e-column field="firstName" headerText="First Name" width="120"></e-column>
+        <e-column field="lastName" headerText="Last Name" width="120"></e-column>
+        <e-column field="email" headerText="Email" width="200"></e-column>
+        <e-column field="phone" headerText="Phone" width="150"></e-column>
+        <e-column field="department" headerText="Department" width="120"></e-column>
+        <e-column field="position" headerText="Position" width="150"></e-column>
+        <e-column field="status" headerText="Status" width="120"></e-column>
+        <e-column field="hireDate" headerText="Hire Date" width="120"></e-column>
+        <e-column field="salaryDisplay" headerText="Salary" width="140"></e-column>
+
+        <e-column headerText="Actions" width="200">
+          <ng-template #template let-data>
+            <div class="action-buttons" role="group" aria-label="Employee actions">
+              <button class="btn-view" (click)="onViewEmployee(data.id)">View</button>
+              <button *ngIf="canEdit" class="btn-edit" (click)="onEditEmployee(data.id)">Edit</button>
+              <button *ngIf="canDelete" class="btn-delete" (click)="onDeleteEmployee(data.id)">Delete</button>
+            </div>
+          </ng-template>
+        </e-column>
+      </e-columns>
+    </ejs-grid>
+  </section>
+</div>
