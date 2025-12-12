@@ -1,0 +1,96 @@
+<!-- Loading State -->
+<ng-container *ngIf="loading; else detailContent">
+  <div class="loading-container">
+    <p>Loading employee details...</p>
+  </div>
+</ng-container>
+
+<!-- Detail Content -->
+<ng-template #detailContent>
+  <ng-container *ngIf="employee; else noEmployee">
+    <div class="detail-container">
+
+      <!-- header -->
+      <div class="detail-header">
+        <button class="btn-back" (click)="goBack()">← Back to Dashboard</button>
+
+        <div class="header-actions">
+          <button *ngIf="canEdit" class="btn-edit" (click)="editEmployee()">Edit</button>
+          <button *ngIf="canDelete" class="btn-delete" (click)="deleteEmployee()">Delete</button>
+        </div>
+      </div>
+
+      <!-- employee-card -->
+      <div class="detail-card">
+
+        <!-- employee-image -->
+        <div class="employee-image">
+          <img
+            [src]="employee!.imageUrl || 'https://via.placeholder.com/200'"
+            [alt]="employee! | fullName"
+          />
+        </div>
+
+        <!-- employee-info -->
+        <div class="employee-info">
+          <h1>{{ employee! | fullName }}</h1>
+          <p class="position">{{ employee!.position }}</p>
+
+          <!-- info-grid -->
+          <div class="info-grid">
+
+            <div class="info-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ employee!.email }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Phone:</span>
+              <span class="value">{{ employee!.phone }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Department:</span>
+              <span class="value badge badge-department">{{ employee!.department }}</span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Status:</span>
+              <span
+                class="value badge badge-status"
+                [class.active]="employee!.status === EmployeeStatus.ACTIVE"
+              >
+                {{ employee!.status }}
+              </span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Hire Date:</span>
+              <span class="value">
+                {{ employee!.hireDate | date: 'longDate' }}
+              </span>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Salary:</span>
+              <span class="value">
+                {{ employee!.salary | currency: 'INR':'symbol':'1.0-0' }}
+              </span>
+            </div>
+
+          </div>
+          <!-- end info-grid -->
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-template #noEmployee>
+    <div class="no-employee">
+      <p>Employee not found.</p>
+      <button class="btn-back" (click)="goBack()">Back</button>
+    </div>
+  </ng-template>
+
+</ng-template>

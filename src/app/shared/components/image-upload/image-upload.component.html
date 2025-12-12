@@ -1,0 +1,28 @@
+<div class="image-upload-container">
+  <div class="preview-section">
+    @if (preview || previewUrl) {
+      <div class="image-preview">
+        <img [src]="preview || previewUrl" alt="Preview" />
+        <button type="button" class="remove-btn" (click)="removeImage()">×</button>
+      </div>
+    } @else {
+      <div class="placeholder">
+        <span class="icon">📷</span>
+        <p>No image selected</p>
+      </div>
+    }
+  </div>
+  <div class="upload-section">
+    <label for="image-upload" class="upload-label">
+      <span>Choose Image</span>
+      <input
+        type="file"
+        id="image-upload"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        style="display: none"
+      />
+    </label>
+  </div>
+</div>
+
