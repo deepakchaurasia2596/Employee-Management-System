@@ -5,7 +5,7 @@ import { Employee, Department, EmployeeStatus } from '../../core/models/employee
 
 // Import the project's mock employees JSON from assets.
 // Using the 'src' path is usually safe in Angular/Karma environments.
-import mockEmployeesJson from '../../../assets/mock-employees.json';
+import mockEmployeesJson from '../../shared/mockData/mock-employees.json';
 const MOCK_EMPLOYEES = (mockEmployeesJson as unknown) as Employee[];
 
 describe('EmployeeService', () => {

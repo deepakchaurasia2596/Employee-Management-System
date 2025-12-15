@@ -12,7 +12,7 @@ import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
 
 // Mock data import
-import mockUserData from '../../../assets/mock-users.json'
+import mockUserData from '../../shared/mockData/mock-users.json'
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;

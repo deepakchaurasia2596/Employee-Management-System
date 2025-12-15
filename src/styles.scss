@@ -17,7 +17,7 @@
   --error-hover: #dc2626;
   --error-bg: rgba(239, 68, 68, 0.1);
   --info-color: #3b82f6;
-  
+
   --bg-color: #ffffff;
   --bg-secondary: #f9fafb;
   --text-color: #111827;
@@ -38,7 +38,7 @@
   --error-hover: #ef4444;
   --error-bg: rgba(248, 113, 113, 0.2);
   --info-color: #60a5fa;
-  
+
   --bg-color: #1f2937;
   --bg-secondary: #111827;
   --text-color: #f9fafb;
@@ -52,44 +52,4 @@ body {
   background-color: var(--bg-secondary);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Syncfusion Grid Theme Override */
-.e-grid {
-  background-color: var(--bg-color) !important;
-  color: var(--text-color) !important;
-}
-
-.e-grid .e-headercell {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-color) !important;
-  border-color: var(--border-color) !important;
-}
-
-.e-grid .e-row {
-  background-color: var(--bg-color) !important;
-  color: var(--text-color) !important;
-}
-
-.e-grid .e-row:hover {
-  background-color: var(--hover-bg-color) !important;
-}
-
-.e-grid .e-pager {
-  background-color: var(--bg-color) !important;
-  color: var(--text-color) !important;
-}
-
-.e-grid .e-pager .e-numericitem {
-  color: var(--text-color) !important;
-}
-
-.e-grid .e-pager .e-numericitem:hover {
-  background-color: var(--hover-bg-color) !important;
-}
-
-.e-grid .e-input-group input {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-color) !important;
-  border-color: var(--border-color) !important;
 }

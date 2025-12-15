@@ -129,8 +129,8 @@ Simplified folder structure (top-level)
        - models/           # shared models (Auth, Employee)
      - auth/               # login component
      - employees/          # dashboard, form, detail
-     - shared/             # components, helpers, pipes, validators
-   - assets/               # mock JSON data, images, static assets
+     - shared/             # components, helpers, pipes, validators,mock data
+   - public/               # images, static assets
    - environments/
 
 Notes

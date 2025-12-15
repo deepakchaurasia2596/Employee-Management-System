@@ -1,8 +1,13 @@
+// Angular imports
 import { Injectable } from '@angular/core';
 import { Observable, of, delay, tap, throwError } from 'rxjs';
+
+// Internal imports
 import { AuthToken, LoginCredentials } from '../../core/models/auth.model';
 import { UserRole, User } from '../../core/models/employee.model';
-import mockUsersJson from '../../../assets/mock-users.json';
+
+//Mock users data
+import mockUsersJson from '../../shared/mockData/mock-users.json';
 
 @Injectable({
   providedIn: 'root'

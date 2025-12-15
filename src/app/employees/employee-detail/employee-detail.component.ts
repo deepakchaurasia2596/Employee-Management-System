@@ -1,8 +1,10 @@
+// Angular imports
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
+// Internal imports
 import { EmployeeService } from '../../core/services/employee.service';
 import { Employee, EmployeeStatus, UserRole } from '../../core/models/employee.model';
 import { appConstants } from '../../core/constants/app.constants';
@@ -21,8 +23,11 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
   employee: Employee | null = null;
   loading = true;
 
-  // expose enum to template
+  // enum to template
   readonly EmployeeStatus = EmployeeStatus;
+
+  // Default image path
+  readonly defaultImage = 'images/default-profile.png';
 
   get canEdit(): boolean {
     return this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
@@ -76,6 +81,11 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
           this.router.navigate([appConstants.routes.EmployeesBase]);
         }
       });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = this.defaultImage;
   }
 
   editEmployee(): void {
