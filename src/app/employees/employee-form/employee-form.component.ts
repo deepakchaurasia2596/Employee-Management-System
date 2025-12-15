@@ -7,27 +7,37 @@ import { ToastrService } from 'ngx-toastr';
 
 // Internal imports
 import { EmployeeService } from '../../core/services/employee.service';
-import { Department, EmployeeStatus, Employee } from '../../core/models/employee.model';
+import { Department, EmployeeStatus } from '../../core/models/employee.model';
 import { CustomValidators } from '../../shared/validators/custom.validators';
 import { ImageUploadComponent } from '../../shared/components/image-upload/image-upload.component';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
 import { SfButtonComponent } from '../../shared/components/sf-button/sf-button.component';
+import { SfDropdownComponent } from '../../shared/components/sf-dropdown/sf-dropdown.component';
 
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ImageUploadComponent,SfButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ImageUploadComponent, SfButtonComponent, SfDropdownComponent],
   templateUrl: './employee-form.component.html',
   styleUrls: ['./employee-form.component.scss']
 })
 export class EmployeeFormComponent implements OnInit, OnDestroy {
   employeeForm: FormGroup;
-  departments = Object.values(Department);
-  statuses = Object.values(EmployeeStatus);
   isEditMode = false;
   employeeId: number | null = null;
   previewUrl: string | null = null;
+
+  // Dropdown Data
+  departmentDropdownOptions = [
+    { text: 'Select Department', value: '' },
+    ...Object.values(Department).map(d => ({ text: d, value: d }))
+  ];
+
+  statusDropdownOptions = [
+    { text: 'Select Status', value: '' },
+    ...Object.values(EmployeeStatus).map(s => ({ text: s, value: s }))
+  ];
 
   private destroy$ = new Subject<void>();
 
@@ -45,8 +55,8 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.employeeId = Number(id);
-      this.loadEmployee(Number(id));
+      this.employeeId = +id;
+      this.loadEmployee(this.employeeId);
     }
   }
 
@@ -65,7 +75,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       position: ['', [Validators.required, Validators.minLength(3)]],
       status: [EmployeeStatus.ACTIVE, Validators.required],
       hireDate: ['', [Validators.required, CustomValidators.dateNotFuture()]],
-      salary: ['', [Validators.required, Validators.min(0), CustomValidators.salaryRange(30000, 200000)]]
+      salary: ['', [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -73,33 +83,38 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
     this.employeeService.getEmployeeById(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (emp) => {
+        next: emp => {
           if (!emp) {
             this.router.navigate([appConstants.routes.EmployeesBase]);
             return;
           }
           this.employeeForm.patchValue(emp);
-          if (emp.imageUrl) this.previewUrl = emp.imageUrl;
+          this.previewUrl = emp.imageUrl ?? null;
         },
-        error: (err) => {
-          console.error('Load employee failed:', err);
+        error: () => {
           this.toastService.error('Error loading employee');
-            this.router.navigate([appConstants.routes.EmployeesBase]);
+          this.router.navigate([appConstants.routes.EmployeesBase]);
         }
       });
   }
 
+  onDepartmentChange(value: string): void {
+    this.employeeForm.get('department')?.setValue(value || '');
+    this.employeeForm.get('department')?.markAsTouched();
+  }
+
+  onStatusChange(value: string): void {
+    this.employeeForm.get('status')?.setValue(value || '');
+    this.employeeForm.get('status')?.markAsTouched();
+  }
+
   onImageSelected(file: File | null): void {
-    if (!file) {
-      this.previewUrl = null;
-      return;
-    }
-    this.previewUrl = URL.createObjectURL(file);
+    this.previewUrl = file ? URL.createObjectURL(file) : null;
   }
 
   onSubmit(): void {
     if (this.employeeForm.invalid) {
-      this.markFormGroupTouched(this.employeeForm);
+      this.markFormTouched();
       return;
     }
 
@@ -108,43 +123,29 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       imageUrl: this.previewUrl
     };
 
-    if (this.isEditMode && this.employeeId) {
-      this.employeeService.updateEmployee(this.employeeId, payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-            next: () => {
-            this.toastService.success('Employee updated successfully');
-            this.router.navigate([appConstants.routes.EmployeesBase]);
-          },
-          error: (err) => {
-            console.error('Update failed:', err);
-            this.toastService.error('Error updating employee');
-          }
-        });
-    } else {
-      this.employeeService.addEmployee(payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-            next: () => {
-            this.toastService.success('Employee added successfully');
-            this.router.navigate([appConstants.routes.EmployeesBase]);
-          },
-          error: (err) => {
-            console.error('Add failed:', err);
-            this.toastService.error('Error adding employee');
-          }
-        });
-    }
+    const request$ = this.isEditMode && this.employeeId
+      ? this.employeeService.updateEmployee(this.employeeId, payload)
+      : this.employeeService.addEmployee(payload);
+
+    request$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toastService.success(
+            this.isEditMode ? 'Employee updated' : 'Employee added'
+          );
+          this.router.navigate([appConstants.routes.EmployeesBase]);
+        },
+        error: () => this.toastService.error('Operation failed')
+      });
   }
 
   cancel(): void {
     this.router.navigate([appConstants.routes.EmployeesBase]);
   }
 
-  private markFormGroupTouched(form: FormGroup): void {
-    Object.values(form.controls).forEach((control) => {
-      control.markAsTouched();
-    });
+  private markFormTouched(): void {
+    Object.values(this.employeeForm.controls).forEach(c => c.markAsTouched());
   }
 
   getError(controlName: string, label: string): string | null {
