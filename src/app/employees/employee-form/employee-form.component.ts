@@ -12,11 +12,12 @@ import { CustomValidators } from '../../shared/validators/custom.validators';
 import { ImageUploadComponent } from '../../shared/components/image-upload/image-upload.component';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
+import { SfButtonComponent } from '../../shared/components/sf-button/sf-button.component';
 
 @Component({
   selector: 'app-employee-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ImageUploadComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ImageUploadComponent,SfButtonComponent],
   templateUrl: './employee-form.component.html',
   styleUrls: ['./employee-form.component.scss']
 })

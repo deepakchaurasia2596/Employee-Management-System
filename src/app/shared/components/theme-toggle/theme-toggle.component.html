@@ -1,15 +1,11 @@
-<button
-  type="button"
-  class="theme-toggle"
-  (click)="toggleTheme()"
-  [attr.aria-label]="themeService.theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'"
->
-  @if (themeService.theme === 'light') {
+<app-sf-button type="button" cssClass="theme-toggle" (clicked)="toggleTheme()"
+  [attr.aria-label]="themeService.theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'">
+  <ng-container *ngIf="themeService.theme === 'light'; else darkMode">
     <span class="icon">🌙</span>
     <span class="text">Dark Mode</span>
-  } @else {
+  </ng-container>
+  <ng-template #darkMode>
     <span class="icon">☀️</span>
     <span class="text">Light Mode</span>
-  }
-</button>
-
+  </ng-template>
+</app-sf-button>

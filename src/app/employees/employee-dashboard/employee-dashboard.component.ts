@@ -12,13 +12,14 @@ import { EmployeeService } from '../../core/services/employee.service';
 import { Employee, Department, EmployeeStatus, UserRole } from '../../core/models/employee.model';
 import { AuthService } from '../../core/services/auth.service';
 import { appConstants } from '../../core/constants/app.constants';
+import { SfButtonComponent } from './../../shared/components/sf-button/sf-button.component';
 
 type GridRow = Employee & { salaryDisplay?: string };
 
 @Component({
   selector: 'app-employee-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, GridModule],
+  imports: [CommonModule, RouterModule, FormsModule, GridModule, SfButtonComponent],
   providers: [PageService, SortService, FilterService, SearchService],
   templateUrl: './employee-dashboard.component.html',
   styleUrls: ['./employee-dashboard.component.scss']
@@ -67,7 +68,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private toastService: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.fetchEmployees();
