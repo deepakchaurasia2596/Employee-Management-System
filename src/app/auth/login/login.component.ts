@@ -1,9 +1,12 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+
+// Internal imports
 import { AuthService } from '../../core/services/auth.service';
-import { ToastService } from '../../core/services/toast.service';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
 
@@ -23,7 +26,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastrService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -46,11 +49,11 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-        this.toastService.showSuccess('Login successful');
+        this.toastService.success('Login successful');
         this.router.navigate([this.returnUrl]);
       },
-      error: (error) => {
-        this.toastService.showError(error?.message || 'Invalid username or password');
+      error: () => {
+        this.toastService.error('Invalid username or password');
       }
     });
   }

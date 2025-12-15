@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 // Internal imports
 import { EmployeeService } from '../../core/services/employee.service';
@@ -10,7 +11,6 @@ import { Employee, EmployeeStatus, UserRole } from '../../core/models/employee.m
 import { appConstants } from '../../core/constants/app.constants';
 import { FullNamePipe } from '../../shared/pipes/full-name.pipe';
 import { AuthService } from '../../core/services/auth.service';
-import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-employee-detail',
@@ -44,7 +44,7 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private employeeService: EmployeeService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -105,7 +105,7 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
         next: () => this.router.navigate([appConstants.routes.EmployeesBase]),
         error: (err: unknown) => {
           this.logError('deleteEmployee', err);
-          this.toastService.showError('Error deleting employee');
+          this.toastService.error('Error deleting employee');
         }
       });
   }

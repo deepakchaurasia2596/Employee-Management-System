@@ -7,7 +7,6 @@ import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
-import { ToastComponent } from './shared/components/toast/toast.component';
 import { environment } from '../environments/environment';
 import { appConstants } from './core/constants/app.constants';
 
@@ -19,8 +18,7 @@ import { appConstants } from './core/constants/app.constants';
     RouterOutlet,
     RouterModule,
     ThemeToggleComponent,
-    LoadingSpinnerComponent,
-    ToastComponent
+    LoadingSpinnerComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

@@ -3,11 +3,11 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 // Internal imports
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../core/services/auth.service';
-import { ToastService } from '../../core/services/toast.service';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
 
@@ -17,10 +17,10 @@ import mockUserData from '../../shared/mockData/mock-users.json'
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let component: LoginComponent;
-  let mockAuthService: { login: any; isAuthenticated: any; };
-  let mockToastService: { showSuccess: any; showError: any; };
-  let mockRouter: { navigate: any; };
-  let mockActivatedRoute: { snapshot: any; };
+  let mockAuthService: { login: any; isAuthenticated: any };
+  let mockToastService: jasmine.SpyObj<ToastrService>;
+  let mockRouter: { navigate: any };
+  let mockActivatedRoute: { snapshot: any };
 
   // Page Object with reusable mock data and DOM queries
   class Page {
@@ -28,24 +28,20 @@ describe('LoginComponent', () => {
       return mockUserData;
     }
 
-    get usernameInput() {
-      return fixture.debugElement.query(By.css('#username'))?.nativeElement as HTMLInputElement;
+    get usernameInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css('#username'))?.nativeElement;
     }
 
-    get passwordInput() {
-      return fixture.debugElement.query(By.css('#password'))?.nativeElement as HTMLInputElement;
+    get passwordInput(): HTMLInputElement {
+      return fixture.debugElement.query(By.css('#password'))?.nativeElement;
     }
 
-    get submitButton() {
-      return fixture.debugElement.query(By.css('.submit-btn'))?.nativeElement as HTMLButtonElement;
+    get submitButton(): HTMLButtonElement {
+      return fixture.debugElement.query(By.css('.submit-btn'))?.nativeElement;
     }
 
     get formDebug() {
       return fixture.debugElement.query(By.css('form'));
-    }
-
-    get usernameError() {
-      return fixture.debugElement.query(By.css('.form-group:nth-of-type(1) .error-message'));
     }
 
     fillForm(username: string, password: string) {
@@ -54,18 +50,8 @@ describe('LoginComponent', () => {
       fixture.detectChanges();
     }
 
-    clickSubmitButton() {
-      // Simulate a real user clicking the button
-      const btn = this.submitButton;
-      if (!btn) { throw new Error('Submit button not found'); }
-      btn.click();
-      fixture.detectChanges();
-    }
-
     submitFormViaEvent() {
-      // Dispatch a submit event on the form to force calling onSubmit()
       const formEl = this.formDebug?.nativeElement as HTMLFormElement;
-      if (!formEl) { throw new Error('Form element not found'); }
       formEl.dispatchEvent(new Event('submit'));
       fixture.detectChanges();
     }
@@ -79,10 +65,10 @@ describe('LoginComponent', () => {
       isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(false)
     };
 
-    mockToastService = {
-      showSuccess: jasmine.createSpy('showSuccess'),
-      showError: jasmine.createSpy('showError')
-    };
+    mockToastService = jasmine.createSpyObj<ToastrService>(
+      'ToastrService',
+      ['success', 'error']
+    );
 
     mockRouter = {
       navigate: jasmine.createSpy('navigate')
@@ -96,7 +82,7 @@ describe('LoginComponent', () => {
       imports: [LoginComponent], // standalone component must be in imports
       providers: [
         { provide: AuthService, useValue: mockAuthService },
-        { provide: ToastService, useValue: mockToastService },
+        { provide: ToastrService, useValue: mockToastService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute }
       ]
@@ -113,9 +99,7 @@ describe('LoginComponent', () => {
    * Component basics
    **************************************************************************/
   describe('Component creation & defaults', () => {
-    it('should create the component (Arrange / Act / Assert)', () => {
-      // Arrange: done in beforeEach
-      // Act: creation already happened
+    it('should create component and set default returnUrl', () => {
       // Assert
       expect(component).toBeTruthy();
       expect(component.returnUrl).toBe(appConstants.routes.EmployeesBase);
@@ -123,25 +107,23 @@ describe('LoginComponent', () => {
   });
 
   /**************************************************************************
-   * UI / Black-box tests: interact via DOM only
-   * Rationale: Treat component as a black-box; only assert observable behavior.
+   * UI tests
    **************************************************************************/
-  describe('UI / Black-box tests (DOM interactions)', () => {
-    it('should keep submit button disabled when form invalid', () => {
+  describe('UI behavior', () => {
+    it('should disable submit button when form is invalid', () => {
       // Arrange
       component.loginForm.controls['username'].setValue('');
       component.loginForm.controls['password'].setValue('');
-      fixture.detectChanges();
-
       // Act
       const disabled = page.submitButton.disabled;
+      fixture.detectChanges();
 
       // Assert
       expect(component.loginForm.invalid).toBeTrue();
       expect(disabled).toBeTrue();
     });
 
-    it('should enable submit button when form valid', () => {
+    it('should enable submit button when form is valid', () => {
       // Arrange
       page.fillForm(page.mockUsers[0].username, page.mockUsers[0].password);
 
@@ -153,7 +135,7 @@ describe('LoginComponent', () => {
       expect(enabled).toBeTrue();
     });
 
-    it('should update form controls when typing into inputs', () => {
+    it('should update form values when typing', () => {
       // Arrange
       const usernameEl = page.usernameInput;
       const passwordEl = page.passwordInput;
@@ -184,10 +166,9 @@ describe('LoginComponent', () => {
   });
 
   /**************************************************************************
-   * White-box / Internal tests: inspect implementation details
-   * Rationale: Require knowledge of component internals (methods & helpers).
+   * White-box tests
    **************************************************************************/
-  describe('White-box / Internal method tests', () => {
+  describe('Internal methods', () => {
     it('markFormGroupTouched should mark all controls as touched', () => {
       // Arrange
       const usernameCtrl = component.loginForm.get('username')!;
@@ -206,14 +187,13 @@ describe('LoginComponent', () => {
 
     it('getError delegates to FormHelper.getError', () => {
       // Arrange
-      const ghSpy = spyOn(FormHelper, 'getError').and.returnValue('some error');
-
+      const ghSpy = spyOn(FormHelper, 'getError').and.returnValue('Error');
       // Act
       const res = component.getError('username', 'Username');
 
       // Assert
       expect(ghSpy).toHaveBeenCalledWith(component.loginForm.get('username'), 'Username');
-      expect(res).toBe('some error');
+      expect(res).toBe('Error');
     });
 
     it('hasError delegates to FormHelper.hasError', () => {
@@ -230,11 +210,10 @@ describe('LoginComponent', () => {
   });
 
   /**************************************************************************
-   * Auth interaction tests: mocked AuthService + ToastService behavior
-   * Rationale: Verify success and error flows when onSubmit is called.
+   * Auth & Toastr tests
    **************************************************************************/
-  describe('Auth interaction tests (AuthService / ToastService)', () => {
-    it('should call authService.login and navigate + show success on valid submit', fakeAsync(() => {
+  describe('Authentication flow', () => {
+    it('should login successfully and navigate', fakeAsync(() => {
       // Arrange
       page.fillForm(page.mockUsers[0].username, page.mockUsers[0].password);
       mockAuthService.login.and.returnValue(of({ token: 'abc' }));
@@ -250,28 +229,11 @@ describe('LoginComponent', () => {
         username: page.mockUsers[0].username,
         password: page.mockUsers[0].password
       });
-      expect(mockToastService.showSuccess).toHaveBeenCalledWith('Login successful');
+      expect(mockToastService.success).toHaveBeenCalledWith('Login successful');
       expect(mockRouter.navigate).toHaveBeenCalledWith([component.returnUrl]);
     }));
 
-    it('should show server error toast when login fails', fakeAsync(() => {
-      // Arrange
-      page.fillForm('baduser', 'badpass');
-      const serverError = { message: 'Bad credentials' };
-      mockAuthService.login.and.returnValue(throwError(() => serverError));
-      fixture.detectChanges();
-
-      // Act
-      page.submitFormViaEvent();
-      tick();
-
-      // Assert
-      expect(mockAuthService.login).toHaveBeenCalled();
-      expect(mockToastService.showError).toHaveBeenCalledWith(serverError.message);
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-    }));
-
-    it('should show fallback error toast when thrown error has no message', fakeAsync(() => {
+    it('should show error toast on login failure', fakeAsync(() => {
       // Arrange
       page.fillForm('baduser', 'badpass');
       mockAuthService.login.and.returnValue(throwError(() => ({})));
@@ -282,7 +244,25 @@ describe('LoginComponent', () => {
       tick();
 
       // Assert
-      expect(mockToastService.showError).toHaveBeenCalledWith('Invalid username or password');
+      expect(mockAuthService.login).toHaveBeenCalled();
+      expect(mockToastService.error).toHaveBeenCalledWith(
+        'Invalid username or password'
+      );
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    }));
+
+    it('should not login when form invalid', fakeAsync(() => {
+      // Arrange
+      page.fillForm('baduser', 'badpass');
+      mockAuthService.login.and.returnValue(throwError(() => ({})));
+      fixture.detectChanges();
+
+      // Act
+      page.submitFormViaEvent();
+      tick();
+
+      // Assert
+      expect(mockToastService.error).toHaveBeenCalledWith('Invalid username or password');
     }));
 
     it('should not call authService.login when form invalid but should mark touched', fakeAsync(() => {
@@ -307,7 +287,7 @@ describe('LoginComponent', () => {
   /**************************************************************************
    * Routing & lifecycle tests
    **************************************************************************/
-  describe('Routing & ngOnInit behaviors', () => {
+  describe('Routing & lifecycle', () => {
     it('ngOnInit should navigate to returnUrl if already authenticated', () => {
       // Arrange
       mockAuthService.isAuthenticated.and.returnValue(true);
@@ -323,7 +303,7 @@ describe('LoginComponent', () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith([component.returnUrl]);
     });
 
-    it('should read returnUrl from queryParams and navigate to it after successful login', fakeAsync(() => {
+    it('should navigate to returnUrl from query param after login', fakeAsync(() => {
       // Arrange
       const customReturn = '/custom';
       mockActivatedRoute.snapshot.queryParams = { returnUrl: customReturn };
@@ -342,7 +322,7 @@ describe('LoginComponent', () => {
       tick();
 
       // Assert
-      expect(mockToastService.showSuccess).toHaveBeenCalledWith('Login successful');
+      expect(mockToastService.success).toHaveBeenCalledWith('Login successful');
       expect(mockRouter.navigate).toHaveBeenCalledWith([customReturn]);
     }));
   });

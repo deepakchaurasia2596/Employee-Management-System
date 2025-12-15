@@ -1,47 +1,51 @@
+// Angular imports
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { inject } from '@angular/core';
-import { ToastService } from '../services/toast.service';
+
+// Toastr Service import
+import { ToastrService } from 'ngx-toastr';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const toast = inject(ToastService);
+  const toastr = inject(ToastrService);
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'An unknown error occurred';
+      let errorMessage = 'Something went wrong. Please try again.';
 
       if (error.error instanceof ErrorEvent) {
-        // Client-side error
-        errorMessage = `Error: ${error.error.message}`;
+        errorMessage = error.error.message;
       } else {
-        // Server-side error
         switch (error.status) {
+          case 0:
+            errorMessage = 'Network error. Please check your internet connection.';
+            break;
           case 400:
-            errorMessage = 'Bad Request: Invalid data provided';
+            errorMessage = 'Bad request. Please verify your input.';
             break;
           case 401:
-            errorMessage = 'Unauthorized: Please login again';
+            errorMessage = 'Session expired. Please login again.';
             break;
           case 403:
-            errorMessage = 'Forbidden: You do not have permission';
+            errorMessage = 'You do not have permission to perform this action.';
             break;
           case 404:
-            errorMessage = 'Not Found: Resource not found';
+            errorMessage = 'Requested resource was not found.';
             break;
           case 500:
-            errorMessage = 'Server Error: Please try again later';
+            errorMessage = 'Internal server error. Please try again later.';
             break;
           default:
-            errorMessage = `Error: ${error.message}`;
+            errorMessage = error.message || errorMessage;
         }
       }
 
-      console.error('HTTP Error:', errorMessage);
       try {
-        toast.showError(errorMessage);
+        toastr.error(errorMessage);
       } catch (e) {
         // nothing
       }
-      return throwError(() => new Error(errorMessage));
+      return throwError(() => error);
     })
   );
 };

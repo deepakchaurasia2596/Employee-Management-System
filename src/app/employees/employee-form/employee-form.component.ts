@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+
+// Internal imports
 import { EmployeeService } from '../../core/services/employee.service';
 import { Department, EmployeeStatus, Employee } from '../../core/models/employee.model';
 import { CustomValidators } from '../../shared/validators/custom.validators';
 import { ImageUploadComponent } from '../../shared/components/image-upload/image-upload.component';
-import { ToastService } from '../../core/services/toast.service';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
 
@@ -33,7 +35,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
     private employeeService: EmployeeService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastrService
   ) {
     this.employeeForm = this.createForm();
   }
@@ -80,7 +82,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Load employee failed:', err);
-          this.toastService.showError('Error loading employee');
+          this.toastService.error('Error loading employee');
             this.router.navigate([appConstants.routes.EmployeesBase]);
         }
       });
@@ -110,12 +112,12 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
             next: () => {
-            this.toastService.showSuccess('Employee updated successfully');
+            this.toastService.success('Employee updated successfully');
             this.router.navigate([appConstants.routes.EmployeesBase]);
           },
           error: (err) => {
             console.error('Update failed:', err);
-            this.toastService.showError('Error updating employee');
+            this.toastService.error('Error updating employee');
           }
         });
     } else {
@@ -123,12 +125,12 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
             next: () => {
-            this.toastService.showSuccess('Employee added successfully');
+            this.toastService.success('Employee added successfully');
             this.router.navigate([appConstants.routes.EmployeesBase]);
           },
           error: (err) => {
             console.error('Add failed:', err);
-            this.toastService.showError('Error adding employee');
+            this.toastService.error('Error adding employee');
           }
         });
     }
