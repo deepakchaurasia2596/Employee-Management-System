@@ -140,10 +140,10 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="employeeForm.invalid">
+        <app-sf-button type="button" cssClass="e-flat btn-cancel" (clicked)="cancel()">Cancel</app-sf-button>
+        <app-sf-button type="submit" cssClass="e-primary btn-submit" [disabled]="employeeForm.invalid">
           {{ isEditMode ? 'Update Employee' : 'Add Employee' }}
-        </button>
+        </app-sf-button>
       </div>
     </form>
   </div>

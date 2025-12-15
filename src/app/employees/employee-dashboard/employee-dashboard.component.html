@@ -3,9 +3,7 @@
     <h1>Employee Dashboard</h1>
 
     <!-- add-button -->
-    <button *ngIf="canAdd" class="btn-primary" (click)="onAddEmployee()" aria-label="Add employee">
-      Add Employee
-    </button>
+    <app-sf-button *ngIf="canAdd" cssClass="e-primary btn-primary" (clicked)="onAddEmployee()" aria-label="Add employee">Add Employee</app-sf-button>
   </header>
 
   <section class="filters-section" aria-label="Filters">
@@ -41,7 +39,7 @@
     </div>
 
     <!-- clear-filters -->
-    <button class="btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    <app-sf-button cssClass="e-outline btn-secondary" (clicked)="clearFilters()">Clear Filters</app-sf-button>
   </section>
 
   <section class="grid-container" aria-label="Employees grid">
@@ -59,12 +57,12 @@
         <e-column field="hireDate" headerText="Hire Date" width="120"></e-column>
         <e-column field="salaryDisplay" headerText="Salary" width="140"></e-column>
 
-        <e-column headerText="Actions" width="200">
+        <e-column headerText="Actions" width="240">
           <ng-template #template let-data>
             <div class="action-buttons" role="group" aria-label="Employee actions">
-              <button class="btn-view" (click)="onViewEmployee(data.id)">View</button>
-              <button *ngIf="canEdit" class="btn-edit" (click)="onEditEmployee(data.id)">Edit</button>
-              <button *ngIf="canDelete" class="btn-delete" (click)="onDeleteEmployee(data.id)">Delete</button>
+              <app-sf-button cssClass="e-link btn-view" (clicked)="onViewEmployee(data.id)">View</app-sf-button>
+              <app-sf-button *ngIf="canEdit" cssClass="e-outline btn-edit" (clicked)="onEditEmployee(data.id)">Edit</app-sf-button>
+              <app-sf-button *ngIf="canDelete" cssClass="e-danger btn-delete" (clicked)="onDeleteEmployee(data.id)">Delete</app-sf-button>
             </div>
           </ng-template>
         </e-column>

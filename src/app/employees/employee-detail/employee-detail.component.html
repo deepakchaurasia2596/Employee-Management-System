@@ -12,11 +12,11 @@
 
       <!-- header -->
       <div class="detail-header">
-        <button class="btn-back" (click)="goBack()">← Back to Dashboard</button>
+        <app-sf-button cssClass="e-link btn-back" (clicked)="goBack()">← Back to Dashboard</app-sf-button>
 
         <div class="header-actions">
-          <button *ngIf="canEdit" class="btn-edit" (click)="editEmployee()">Edit</button>
-          <button *ngIf="canDelete" class="btn-delete" (click)="deleteEmployee()">Delete</button>
+          <app-sf-button *ngIf="canEdit" cssClass="e-outline btn-edit" (clicked)="editEmployee()">Edit</app-sf-button>
+          <app-sf-button *ngIf="canDelete" cssClass="e-danger btn-delete" (clicked)="deleteEmployee()">Delete</app-sf-button>
         </div>
       </div>
 
@@ -90,7 +90,7 @@
   <ng-template #noEmployee>
     <div class="no-employee">
       <p>Employee not found.</p>
-      <button class="btn-back" (click)="goBack()">Back</button>
+      <app-sf-button cssClass="e-link btn-back" (clicked)="goBack()">Back</app-sf-button>
     </div>
   </ng-template>
 

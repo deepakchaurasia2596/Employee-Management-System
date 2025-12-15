@@ -11,11 +11,12 @@ import { Employee, EmployeeStatus, UserRole } from '../../core/models/employee.m
 import { appConstants } from '../../core/constants/app.constants';
 import { FullNamePipe } from '../../shared/pipes/full-name.pipe';
 import { AuthService } from '../../core/services/auth.service';
+import { SfButtonComponent } from '../../shared/components/sf-button/sf-button.component';
 
 @Component({
   selector: 'app-employee-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FullNamePipe],
+  imports: [CommonModule, RouterModule, FullNamePipe , SfButtonComponent],
   templateUrl: './employee-detail.component.html',
   styleUrls: ['./employee-detail.component.scss']
 })

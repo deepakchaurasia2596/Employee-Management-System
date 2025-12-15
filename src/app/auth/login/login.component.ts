@@ -9,11 +9,12 @@ import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
 import { FormHelper } from '../../shared/helpers/form.helper';
 import { appConstants } from '../../core/constants/app.constants';
+import { SfButtonComponent } from './../../shared/components/sf-button/sf-button.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule , SfButtonComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
