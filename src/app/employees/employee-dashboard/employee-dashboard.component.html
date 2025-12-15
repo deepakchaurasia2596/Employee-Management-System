@@ -2,49 +2,79 @@
   <header class="dashboard-header">
     <h1>Employee Dashboard</h1>
 
-    <!-- add-button -->
-    <app-sf-button *ngIf="canAdd" cssClass="e-primary btn-primary" (clicked)="onAddEmployee()" aria-label="Add employee">Add Employee</app-sf-button>
+    <app-sf-button
+      *ngIf="canAdd"
+      cssClass="e-primary btn-primary"
+      aria-label="Add employee"
+      (clicked)="onAddEmployee()">
+      Add Employee
+    </app-sf-button>
   </header>
 
+  <!-- Filters -->
   <section class="filters-section" aria-label="Filters">
-    <!-- search -->
+
+    <!-- Search -->
     <div class="filter-group">
       <label class="visually-hidden" for="employee-search">Search employees</label>
-      <input id="employee-search" type="text" class="search-input" placeholder="Search employees..."
-        [value]="searchQuery" (input)="onSearchChange($event)" aria-label="Search employees" />
+      <input
+        id="employee-search"
+        type="text"
+        class="search-input"
+        placeholder="Search employees..."
+        aria-label="Search employees"
+        [value]="searchQuery"
+        (input)="onSearchChange($event)" />
     </div>
 
-    <!-- department -->
+    <!-- Department Filter -->
     <div class="filter-group">
       <label class="visually-hidden" for="department-filter">Department</label>
-      <select id="department-filter" class="filter-select" [value]="selectedDepartment || ''"
-        (change)="onDepartmentChange($event)">
-        <option value="">All Departments</option>
-        <option *ngFor="let dept of departments; trackBy: trackByPrimitive" [value]="dept">
-          {{ dept }}
-        </option>
-      </select>
+      <app-sf-dropdown
+        id="department-filter"
+        ariaLabel="Department"
+        placeholder="Select Department"
+        [dataSource]="departmentDropdownOptions"
+        [fields]="{ text: 'text', value: 'value' }"
+        [value]="selectedDepartment || ''"
+        (valueChange)="onDepartmentDropdownChange($event)">
+      </app-sf-dropdown>
     </div>
 
-    <!-- status -->
+    <!-- Status Filter -->
     <div class="filter-group">
       <label class="visually-hidden" for="status-filter">Status</label>
-      <select id="status-filter" class="filter-select" [value]="selectedStatus || ''"
-        (change)="onStatusChange($event)">
-        <option value="">All Statuses</option>
-        <option *ngFor="let st of statuses; trackBy: trackByPrimitive" [value]="st">
-          {{ st }}
-        </option>
-      </select>
+      <app-sf-dropdown
+        id="status-filter"
+        ariaLabel="Status"
+        placeholder="Select Status"
+        [dataSource]="statusDropdownOptions"
+        [fields]="{ text: 'text', value: 'value' }"
+        [value]="selectedStatus || ''"
+        (valueChange)="onStatusDropdownChange($event)">
+      </app-sf-dropdown>
     </div>
 
-    <!-- clear-filters -->
-    <app-sf-button cssClass="e-outline btn-secondary" (clicked)="clearFilters()">Clear Filters</app-sf-button>
+    <!-- Clear Filters -->
+    <app-sf-button
+      cssClass="e-outline btn-secondary"
+      (clicked)="clearFilters()">
+      Clear Filters
+    </app-sf-button>
+
   </section>
 
+  <!-- Grid -->
   <section class="grid-container" aria-label="Employees grid">
-    <ejs-grid #grid [dataSource]="gridData" [allowPaging]="true" [pageSettings]="pageSettings" [allowSorting]="true"
-      [allowFiltering]="true" [filterSettings]="filterSettings">
+    <ejs-grid
+      #grid
+      [dataSource]="gridData"
+      [allowPaging]="true"
+      [allowSorting]="true"
+      [allowFiltering]="true"
+      [pageSettings]="pageSettings"
+      [filterSettings]="filterSettings">
+
       <e-columns>
         <e-column field="id" headerText="ID" width="80"></e-column>
         <e-column field="firstName" headerText="First Name" width="120"></e-column>
@@ -57,6 +87,7 @@
         <e-column field="hireDate" headerText="Hire Date" width="120"></e-column>
         <e-column field="salaryDisplay" headerText="Salary" width="140"></e-column>
 
+        <!-- Actions -->
         <e-column headerText="Actions" width="240">
           <ng-template #template let-data>
             <div class="action-buttons" role="group" aria-label="Employee actions">
@@ -67,6 +98,8 @@
           </ng-template>
         </e-column>
       </e-columns>
+
     </ejs-grid>
   </section>
+
 </div>

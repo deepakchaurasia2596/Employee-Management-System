@@ -12,19 +12,21 @@ import { EmployeeService } from '../../core/services/employee.service';
 import { Employee, Department, EmployeeStatus, UserRole } from '../../core/models/employee.model';
 import { AuthService } from '../../core/services/auth.service';
 import { appConstants } from '../../core/constants/app.constants';
-import { SfButtonComponent } from './../../shared/components/sf-button/sf-button.component';
+import { SfButtonComponent } from '../../shared/components/sf-button/sf-button.component';
+import { SfDropdownComponent } from '../../shared/components/sf-dropdown/sf-dropdown.component';
 
 type GridRow = Employee & { salaryDisplay?: string };
 
 @Component({
   selector: 'app-employee-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, GridModule, SfButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, GridModule, SfButtonComponent, SfDropdownComponent],
   providers: [PageService, SortService, FilterService, SearchService],
   templateUrl: './employee-dashboard.component.html',
   styleUrls: ['./employee-dashboard.component.scss']
 })
 export class EmployeeDashboardComponent implements OnInit, OnDestroy {
+  // Data
   employees: Employee[] = [];
   filteredEmployees: Employee[] = [];
   gridData: GridRow[] = [];
@@ -33,8 +35,34 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   selectedDepartment: Department | null = null;
   selectedStatus: EmployeeStatus | null = null;
 
+  // ViewChild for Grid
+  @ViewChild('grid') grid?: GridComponent;
+
+  // Dropdown Data
   departments = Object.values(Department) as Department[];
   statuses = Object.values(EmployeeStatus) as EmployeeStatus[];
+
+  departmentDropdownOptions = [
+    { text: 'All Departments', value: '' },
+    ...Object.values(Department).map(d => ({ text: d, value: d }))
+  ];
+
+  statusDropdownOptions = [
+    { text: 'All Statuses', value: '' },
+    ...Object.values(EmployeeStatus).map(s => ({ text: s, value: s }))
+  ];
+
+  // Grid Configuration
+  filterSettings = {
+    type: 'FilterBar',
+    mode: 'Immediate',
+    immediateModeDelay: 300
+  };
+
+  pageSettings = {
+    pageSize: appConstants.pagination.defaultPageSize,
+    pageSizes: appConstants.pagination.pageSizeOptions
+  };
 
   get canAdd(): boolean {
     return this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
@@ -47,19 +75,6 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   get canDelete(): boolean {
     return this.authService.hasRole(UserRole.ADMIN);
   }
-
-  @ViewChild('grid') grid?: GridComponent;
-
-  filterSettings: any = {
-    type: 'FilterBar',
-    mode: 'Immediate',
-    immediateModeDelay: 300
-  };
-
-  pageSettings = {
-    pageSize: appConstants.pagination.defaultPageSize,
-    pageSizes: appConstants.pagination.pageSizeOptions
-  };
 
   private destroy$ = new Subject<void>();
 
@@ -80,25 +95,17 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    const value = (input?.value ?? '').trim();
-    this.searchQuery = value;
+    this.searchQuery = (event.target as HTMLInputElement)?.value.trim() || '';
     this.applyFilters();
   }
 
-  onDepartmentChange(event: Event): void {
-    const select = event.target as HTMLSelectElement | null;
-    const raw = (select?.value ?? '').trim();
-    const dept = raw === '' ? null : (raw as unknown as Department);
-    this.selectedDepartment = dept;
+  onDepartmentDropdownChange(value: string): void {
+    this.selectedDepartment = value ? (value as Department) : null;
     this.applyFilters();
   }
 
-  onStatusChange(event: Event): void {
-    const select = event.target as HTMLSelectElement | null;
-    const raw = (select?.value ?? '').trim();
-    const st = raw === '' ? null : (raw as unknown as EmployeeStatus);
-    this.selectedStatus = st;
+  onStatusDropdownChange(value: string): void {
+    this.selectedStatus = value ? (value as EmployeeStatus) : null;
     this.applyFilters();
   }
 
@@ -107,9 +114,11 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     this.selectedDepartment = null;
     this.selectedStatus = null;
     this.applyFilters();
-
-    // Reset Syncfusion grid filter UI
     setTimeout(() => this.grid?.clearFiltering(), 0);
+  }
+
+  onAddEmployee(): void {
+    this.router.navigate([appConstants.routes.EmployeeAdd]);
   }
 
   onViewEmployee(id: number): void {
@@ -125,65 +134,19 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     this.removeEmployee(id);
   }
 
-  onAddEmployee(): void {
-    this.router.navigate([appConstants.routes.EmployeeAdd]);
-  }
+  // API Calls
 
   fetchEmployees(): void {
     this.employeeService.getAllEmployees()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (list: Employee[]) => {
-          this.employees = list;
-          this.filteredEmployees = list;
+        next: employees => {
+          this.employees = employees;
+          this.filteredEmployees = employees;
           this.updateGridData();
         },
-        error: (err) => this.logError('fetchEmployees', err)
+        error: err => this.logError('fetchEmployees', err)
       });
-  }
-
-  /**
-   * Attempt to call createEmployee on the real service if present.
-   * This guard types createEmployee as returning Observable<Employee>.
-   * If the service doesn't expose createEmployee (mock-only), we fallback to local insert.
-   */
-  createEmployeeIfPresent(payload: Partial<Employee>): void {
-    const svc = this.employeeService as Partial<EmployeeService & {
-      createEmployee?: (p: Partial<Employee>) => Observable<Employee>
-    }>;
-
-    if (typeof svc.createEmployee === 'function') {
-      svc.createEmployee!(payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => this.fetchEmployees(),
-          error: (err) => this.logError('createEmployee', err)
-        });
-      return;
-    }
-
-    // Fallback to local insert for mock-only service
-    const current = [...this.employees];
-    const newId = current.length ? Math.max(...current.map(e => e.id)) + 1 : 1;
-    const deptVal = (payload.department as Department) ?? this.departments[0];
-    const statusVal = (payload.status as EmployeeStatus) ?? this.statuses[0];
-
-    const newEmp: Employee = {
-      id: newId,
-      firstName: payload.firstName ?? 'New',
-      lastName: payload.lastName ?? 'Employee',
-      email: payload.email ?? '',
-      phone: payload.phone ?? '',
-      department: deptVal,
-      position: payload.position ?? '',
-      status: statusVal,
-      hireDate: payload.hireDate ?? new Date().toISOString().slice(0, 10),
-      salary: payload.salary ?? 0
-    };
-
-    current.push(newEmp);
-    this.employees = current;
-    this.applyFilters();
   }
 
   removeEmployee(id: number): void {
@@ -194,7 +157,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
           this.toastService.success('Employee deleted');
           this.fetchEmployees();
         },
-        error: (err) => {
+        error: err => {
           this.logError('removeEmployee', err);
           this.toastService.error('Error deleting employee');
         }
@@ -202,27 +165,32 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   }
 
   private applyFilters(): void {
-    const base = [...this.employees];
-    const dept = this.selectedDepartment;
-    const status = this.selectedStatus;
-    const query = this.searchQuery.trim().toLowerCase();
+    let list = [...this.employees];
 
-    const afterDept = dept ? base.filter(e => e.department === dept) : base;
-    const afterStatus = status ? afterDept.filter(e => e.status === status) : afterDept;
-    const finalList = query ? afterStatus.filter(e => this.matchesQuery(e, query)) : afterStatus;
+    if (this.selectedDepartment) {
+      list = list.filter(e => e.department === this.selectedDepartment);
+    }
 
-    this.filteredEmployees = finalList;
+    if (this.selectedStatus) {
+      list = list.filter(e => e.status === this.selectedStatus);
+    }
+
+    if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase();
+      list = list.filter(e => this.matchesQuery(e, q));
+    }
+
+    this.filteredEmployees = list;
     this.updateGridData();
   }
 
   private matchesQuery(emp: Employee, q: string): boolean {
-    const query = q;
     return (
-      emp.firstName.toLowerCase().includes(query) ||
-      (emp.lastName ?? '').toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query) ||
-      emp.position.toLowerCase().includes(query) ||
-      (emp.phone ?? '').toLowerCase().includes(query)
+      emp.firstName.toLowerCase().includes(q) ||
+      (emp.lastName ?? '').toLowerCase().includes(q) ||
+      emp.email.toLowerCase().includes(q) ||
+      emp.position.toLowerCase().includes(q) ||
+      (emp.phone ?? '').toLowerCase().includes(q)
     );
   }
 
@@ -234,27 +202,11 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private logError(operation: string, err: unknown): void {
-    if (err instanceof Error) {
-      console.error(`${operation} failed:`, err.message, err);
-    } else {
-      console.error(`${operation} failed:`, err);
-    }
+  private logError(operation: string, error: unknown): void {
+    console.error(`${operation} failed`, error);
   }
 
-  /**
-   * trackBy for employees list.
-   * Returns a stable numeric id (keeps DOM nodes when reloading list).
-   */
-  trackByEmployee(index: number, item: Employee): number {
-    return item?.id ?? index;
-  }
-
-  /**
-   * trackBy for primitive lists like Department or EmployeeStatus.
-   * Returns string representation of the primitive/enum value.
-   */
-  trackByPrimitive(index: number, item: Department | EmployeeStatus): string {
-    return String(item);
+  trackByEmployee(_: number, emp: Employee): number {
+    return emp.id;
   }
 }
