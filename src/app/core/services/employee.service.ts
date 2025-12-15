@@ -1,7 +1,12 @@
+// Angular imports
 import { Injectable } from '@angular/core';
 import { Observable, of, delay, throwError } from 'rxjs';
+
+// Internal imports
 import { Employee, Department, EmployeeStatus } from '../models/employee.model';
-import  mockEmployeesJsonData from '../../../assets/mock-employees.json';
+
+//Mock employees data
+import  mockEmployeesJsonData from '../../shared/mockData/mock-employees.json';
 
 @Injectable({
   providedIn: 'root'

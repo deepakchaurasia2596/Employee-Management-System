@@ -26,8 +26,9 @@
         <!-- employee-image -->
         <div class="employee-image">
           <img
-            [src]="employee!.imageUrl || 'https://via.placeholder.com/200'"
+            [src]="employee!.imageUrl || defaultImage"
             [alt]="employee! | fullName"
+            (error)="onImageError($event)"
           />
         </div>
 
