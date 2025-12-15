@@ -5,12 +5,12 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { GridModule, PageService, SortService, FilterService, SearchService, GridComponent } from '@syncfusion/ej2-angular-grids';
 import { Subject, takeUntil, Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 // Internal Shared imports
 import { EmployeeService } from '../../core/services/employee.service';
 import { Employee, Department, EmployeeStatus, UserRole } from '../../core/models/employee.model';
 import { AuthService } from '../../core/services/auth.service';
-import { ToastService } from '../../core/services/toast.service';
 import { appConstants } from '../../core/constants/app.constants';
 
 type GridRow = Employee & { salaryDisplay?: string };
@@ -66,7 +66,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
     private employeeService: EmployeeService,
     private router: Router,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -190,12 +190,12 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.toastService.showSuccess('Employee deleted');
+          this.toastService.success('Employee deleted');
           this.fetchEmployees();
         },
         error: (err) => {
           this.logError('removeEmployee', err);
-          this.toastService.showError('Error deleting employee');
+          this.toastService.error('Error deleting employee');
         }
       });
   }
