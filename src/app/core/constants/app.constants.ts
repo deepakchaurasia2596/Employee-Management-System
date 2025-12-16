@@ -3,6 +3,7 @@
  */
 export const AppRoutePaths = {
   EmployeesBase: '/employees',
+  EmployeeView: '/employees/view',
   EmployeeAdd: '/employees/add',
   EmployeeEdit: '/employees/edit',
   Login: '/login',
