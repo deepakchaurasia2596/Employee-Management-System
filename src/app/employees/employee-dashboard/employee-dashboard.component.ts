@@ -122,7 +122,7 @@ export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   }
 
   onViewEmployee(id: number): void {
-    this.router.navigate([appConstants.routes.EmployeesBase, id]);
+    this.router.navigate([appConstants.routes.EmployeeView, id]);
   }
 
   onEditEmployee(id: number): void {
